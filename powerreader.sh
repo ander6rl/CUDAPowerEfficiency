@@ -3,7 +3,7 @@
 
 #!/bin/bash
 
-sampling_rate_ms=1000
+sampling_rate_ms=10
 
 delay=$(echo "scale=3; $sampling_rate_ms / 1000" | bc)
 
@@ -24,9 +24,9 @@ while true; do
     sleep $delay
 
     # Check if 'smi-stop' was typed in the terminal
-    read -t 0.1 -n 1 input
-    if [[ $input == "smi-stop" ]]; then
-        echo "Terminating script..."
-        break
-    fi
+    #read -t 0.1 -n 1 input
+    #if [[ $input == "smi-stop" ]]; then
+     #   echo "Terminating script..."
+      #  break
+    #fi
 done
