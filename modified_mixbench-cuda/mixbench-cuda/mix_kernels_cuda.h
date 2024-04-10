@@ -6,4 +6,4 @@
 
 #pragma once
 
-extern "C" void mixbenchGPU(double*, long size, int b, bool runWarmup);
+extern "C" void mixbenchGPU(double*, long size, int blockSize, bool runWarmup);

@@ -14,8 +14,6 @@
 #define ELEMENTS_PER_THREAD (8)
 #define FUSION_DEGREE (4)
 
-const int BLOCK_SIZE = 1;
-
 template<class T>
 inline __device__ T conv_int(const int i){ return static_cast<T>(i); }
 
@@ -89,9 +87,10 @@ float finalizeEvents(cudaEvent_t start, cudaEvent_t stop){
 	return kernel_time;
 }
 
-void runbench_warmup(double *cd, long size){
+void runbench_warmup(double *cd, long size, int blockSize){
 	const long reduced_grid_size = size/(ELEMENTS_PER_THREAD)/128;
-	// const int BLOCK_SIZE = 256;
+	const int BLOCK_SIZE = 256;
+	// const int BLOCK_SIZE = blockSize;
 	const int TOTAL_REDUCED_BLOCKS = reduced_grid_size/BLOCK_SIZE;
 
 	dim3 dimBlock(BLOCK_SIZE, 1, 1);
@@ -105,10 +104,11 @@ void runbench_warmup(double *cd, long size){
 int out_config = 1;
 
 template<unsigned int compute_iterations>
-void runbench(double *cd, long size, bool doHalfs){
+void runbench(double *cd, long size, bool doHalfs, int BLOCK_SIZE){
 	const long compute_grid_size = size/ELEMENTS_PER_THREAD/FUSION_DEGREE;
 	// const int BLOCK_SIZE = 256;
-	const int TOTAL_BLOCKS = compute_grid_size/BLOCK_SIZE;
+	// const int BLOCK_SIZE = blockSize;
+	const int TOTAL_BLOCKS = compute_grid_size / BLOCK_SIZE;
 	const long long computations = (ELEMENTS_PER_THREAD*(long long)compute_grid_size+(2*ELEMENTS_PER_THREAD*compute_iterations)*(long long)compute_grid_size)*FUSION_DEGREE;
 	const long long memoryoperations = size;
 
@@ -157,7 +157,7 @@ void runbench(double *cd, long size, bool doHalfs){
 		((double)memoryoperations*sizeof(int))/kernel_time_mad_int*1000./(1000.*1000.*1000.) );
 }
 
-extern "C" void mixbenchGPU(double *c, long size){
+extern "C" void mixbenchGPU(double *c, long size, int b, bool runWarmup){
 	const char *benchtype = "compute with global memory (block strided)";
 
 	printf("Trade-off type:       %s\n", benchtype);
@@ -180,43 +180,117 @@ extern "C" void mixbenchGPU(double *c, long size){
 	printf("Experiment ID, Single Precision ops,,,,              Double precision ops,,,,              Half precision ops,,,,                Integer operations,,, \n");
 	printf("Compute iters, Flops/byte, ex.time,  GFLOPS, GB/sec, Flops/byte, ex.time,  GFLOPS, GB/sec, Flops/byte, ex.time,  GFLOPS, GB/sec, Iops/byte, ex.time,   GIOPS, GB/sec\n");
 
-	runbench_warmup(cd, size);
+	// const int blockSize = b;
 
-	runbench<0>(cd, size, doHalfs);
-	runbench<1>(cd, size, doHalfs);
-	runbench<2>(cd, size, doHalfs);
-	runbench<3>(cd, size, doHalfs);
-	runbench<4>(cd, size, doHalfs);
-	runbench<5>(cd, size, doHalfs);
-	runbench<6>(cd, size, doHalfs);
-	runbench<7>(cd, size, doHalfs);
-	runbench<8>(cd, size, doHalfs);
-	runbench<9>(cd, size, doHalfs);
-	runbench<10>(cd, size, doHalfs);
-	runbench<11>(cd, size, doHalfs);
-	runbench<12>(cd, size, doHalfs);
-	runbench<13>(cd, size, doHalfs);
-	runbench<14>(cd, size, doHalfs);
-	runbench<15>(cd, size, doHalfs);
-	runbench<16>(cd, size, doHalfs);
-	runbench<17>(cd, size, doHalfs);
-	runbench<18>(cd, size, doHalfs);
-	runbench<20>(cd, size, doHalfs);
-	runbench<22>(cd, size, doHalfs);
-	runbench<24>(cd, size, doHalfs);
-	runbench<28>(cd, size, doHalfs);
-	runbench<32>(cd, size, doHalfs);
-	runbench<40>(cd, size, doHalfs);
-	runbench<48>(cd, size, doHalfs);
-	runbench<56>(cd, size, doHalfs);
-	runbench<64>(cd, size, doHalfs);
-	runbench<80>(cd, size, doHalfs);
-	runbench<96>(cd, size, doHalfs);
-	runbench<128>(cd, size, doHalfs);
-	runbench<192>(cd, size, doHalfs);
-	runbench<256>(cd, size, doHalfs);
-	runbench<512>(cd, size, doHalfs);
-	runbench<1024>(cd, size, doHalfs);
+	if(runWarmup){
+		printf("Warm-up run\n");
+		runbench_warmup(cd, size, blockSize);
+	}
+
+	const int SIZE = 7;
+	// int blockArray[7];
+
+	const int block1 = 1;
+	const int block32 = 32;
+	const int block64 = 64;
+	const int block128 																			= 128;
+	const int block256 = 256;
+	const int block512 = 512;
+	const int block1024 = 1024;
+
+	switch(b) {
+		case 1:
+			runbench<0>(cd, size, doHalfs, block1);
+			runbench<1>(cd, size, doHalfs, block1);
+			runbench<2>(cd, size, doHalfs, block1);
+			runbench<3>(cd, size, doHalfs, block1);
+			runbench<4>(cd, size, doHalfs, block1);
+			runbench<5>(cd, size, doHalfs, block1);
+			runbench<6>(cd, size, doHalfs, block1);
+			runbench<7>(cd, size, doHalfs, block1);
+			runbench<8>(cd, size, doHalfs, block1);
+			runbench<9>(cd, size, doHalfs, block1);
+			runbench<10>(cd, size, doHalfs, block1);
+			runbench<11>(cd, size, doHalfs, block1);
+			runbench<12>(cd, size, doHalfs, block1);
+			runbench<13>(cd, size, doHalfs, block1);
+			runbench<14>(cd, size, doHalfs, block1);
+			runbench<15>(cd, size, doHalfs, block1);
+			runbench<16>(cd, size, doHalfs, block1);
+			runbench<17>(cd, size, doHalfs, block1);
+			runbench<18>(cd, size, doHalfs, block1);
+			runbench<20>(cd, size, doHalfs, block1);
+			runbench<22>(cd, size, doHalfs, block1);
+			runbench<24>(cd, size, doHalfs, block1);
+			runbench<28>(cd, size, doHalfs, block1);
+			runbench<32>(cd, size, doHalfs, block1);
+			runbench<40>(cd, size, doHalfs, block1);
+			runbench<48>(cd, size, doHalfs, block1);
+			runbench<56>(cd, size, doHalfs, block1);
+			runbench<64>(cd, size, doHalfs, block1);
+			runbench<80>(cd, size, doHalfs, block1);
+			runbench<96>(cd, size, doHalfs, block1);
+			runbench<128>(cd, size, doHalfs, block1);
+			runbench<192>(cd, size, doHalfs, block1);
+			runbench<256>(cd, size, doHalfs, block1);
+			runbench<512>(cd, size, doHalfs, block1);
+			runbench<1024>(cd, size, doHalfs, block1);
+			break;
+		case 32:
+			break;
+		case 64:
+				break;
+		case 128:
+			break;
+		case 256:
+			break;
+		case 512:
+			break;
+		case 1024:
+			break;
+		default:
+			printf("Invalid block size\n");
+			break
+	}
+
+
+
+
+	runbench<0>(cd, size, doHalfs, blockSize);
+	// runbench<1>(cd, size, doHalfs, blockSize);
+	// runbench<2>(cd, size, doHalfs, blockSize);
+	// runbench<3>(cd, size, doHalfs, blockSize);
+	// runbench<4>(cd, size, doHalfs, blockSize);
+	// runbench<5>(cd, size, doHalfs, blockSize);
+	// runbench<6>(cd, size, doHalfs, blockSize);
+	// runbench<7>(cd, size, doHalfs, blockSize);
+	// runbench<8>(cd, size, doHalfs, blockSize);
+	// runbench<9>(cd, size, doHalfs, blockSize);
+	// runbench<10>(cd, size, doHalfs, blockSize);
+	// runbench<11>(cd, size, doHalfs, blockSize);
+	// runbench<12>(cd, size, doHalfs, blockSize);
+	// runbench<13>(cd, size, doHalfs, blockSize);
+	// runbench<14>(cd, size, doHalfs, blockSize);
+	// runbench<15>(cd, size, doHalfs, blockSize);
+	// runbench<16>(cd, size, doHalfs, blockSize);
+	// runbench<17>(cd, size, doHalfs, blockSize);
+	// runbench<18>(cd, size, doHalfs, blockSize);
+	// runbench<20>(cd, size, doHalfs, blockSize);
+	// runbench<22>(cd, size, doHalfs, blockSize);
+	// runbench<24>(cd, size, doHalfs, blockSize);
+	// runbench<28>(cd, size, doHalfs, blockSize);
+	// runbench<32>(cd, size, doHalfs, blockSize);
+	// runbench<40>(cd, size, doHalfs, blockSize);
+	// runbench<48>(cd, size, doHalfs, blockSize);
+	// runbench<56>(cd, size, doHalfs, blockSize);
+	// runbench<64>(cd, size, doHalfs, blockSize);
+	// runbench<80>(cd, size, doHalfs, blockSize);
+	// runbench<96>(cd, size, doHalfs, blockSize);
+	// runbench<128>(cd, size, doHalfs, blockSize);
+	// runbench<192>(cd, size, doHalfs, blockSize);
+	// runbench<256>(cd, size, doHalfs, blockSize);
+	// runbench<512>(cd, size, doHalfs, blockSize);
+	// runbench<1024>(cd, size, doHalfs, blockSize);
 
 	printf("--------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 

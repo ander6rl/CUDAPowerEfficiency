@@ -7,7 +7,7 @@ CUDA_DEFINES =
 
 CUDA_INCLUDES = --options-file CMakeFiles/mixbench-cuda.dir/includes_CUDA.rsp
 
-CUDA_FLAGS =  -Xptxas=-v -Wno-deprecated-gpu-targets --cudart=static -gencode arch=compute_52,code=[sm_52,compute_52] -gencode arch=compute_61,code=compute_61 -std=c++14
+CUDA_FLAGS =  -Xptxas=-v -Wno-deprecated-gpu-targets --cudart=static -std=c++14 --generate-code=arch=compute_86,code=[compute_86,sm_86]
 
 CXX_DEFINES = 
 
