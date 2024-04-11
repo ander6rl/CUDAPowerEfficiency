@@ -9,15 +9,16 @@ sampling_rate_ms=10
 
 delay=$(echo "scale=3; $sampling_rate_ms / 1000" | bc)
 
-log_file="gpu_sensor_log.txt"
+log_file="results/$1_gpu_sensor_log.txt"
 
+times_file="results/$1_times.txt"
 
 # Execute benchmark in the background, wait 2 seconds, then start and redirect output to results.txt
-(sleep 1 && echo "--------------------Benchmark starting--------------------" && build/mixbench-cuda -b $1> results.txt && echo "--------------------Benchmark done!--------------------" && sleep 1 && kill $$) &
+(sleep 5 && echo "--------------------Benchmark starting--------------------" && echo $(nvidia-smi --query-gpu=timestamp --format=csv,noheader,nounits) >> "$times_file" && build/mixbench-cuda -b $1> results.txt && echo "--------------------Benchmark done!--------------------" && echo $(nvidia-smi --query-gpu=timestamp --format=csv,noheader,nounits) >> "$times_file" && sleep 5 && kill $$) &
 
 
-echo "Timestamp (s), Power (W), Performance State"
-echo "Timestamp (s), Power (W), Performance State" > "$log_file"
+echo "Timestamp (s), Power (W), Performance State, Block Size $1"
+echo "Timestamp (s), Power (W), Performance State, Block Size $1" > "$log_file"
 
 # Infinite loop to continously monitor GPU
 while true; do
