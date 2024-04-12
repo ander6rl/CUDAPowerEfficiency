@@ -4,6 +4,7 @@
  * Author: Ahron Pollak
  */
 
+#define _POSIX_C_SOURCE 200809L 
 #include "papi.h"
 #include <nvml.h>
 #include <stdio.h>
@@ -28,7 +29,7 @@ int main(int argc, char** argv) {
     // This nvml structure is largely copied from here: https://github.com/erik/cudamon/blob/master/lib/nvml/example/example.c
     // Initialize nvml library
     nvmlReturn_t result;
-    unsigned int device_count, i;
+    unsigned int device_count;
     result = nvmlInit();
     if (result != NVML_SUCCESS) {
         handle_error(result, "Failure initializing NVML");
@@ -43,7 +44,6 @@ int main(int argc, char** argv) {
     nvmlDevice_t device;
     char name[NVML_DEVICE_NAME_BUFFER_SIZE];
     nvmlPciInfo_t pci;
-    nvmlComputeMode_t compute_mode;
         
     // query for the device handle to perform operations on a device; just query the 0th indexed gpu (the one alloc'd)
     result = nvmlDeviceGetHandleByIndex(0, &device);
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     if (result != NVML_SUCCESS) {
         handle_error(result, "Failed to get pci info for device");
     }
-    printf("Device physically talking to: %d. %s [%s]\n", i, name, pci.busId);
+    printf("Device physically talking to: %d. %s [%s]\n", 0, name, pci.busId);
 
     // Now initialize the PAPI library
     int retval;
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     retval = PAPI_start(EventSet);
 
     char log_file[256];
-    snprintf(log_file, sizeof(log_file), "gpu_sensor_papi_log.txt", argv[1]);
+    snprintf(log_file, sizeof(log_file), "gpu_sensor_papi_log.txt");
     FILE *fp = fopen(log_file, "w");
     if (!fp) {
         fprintf(stderr, "Failed to open file\n");
@@ -142,15 +142,19 @@ int main(int argc, char** argv) {
     //TODO: run cuda benchmarks here (turn into cuda file?)
     fprintf(fp, "Timestamp (s) Power (W)\n");
 
-    char *end_p;
     //TODO: error check strtol stuff
-    long duration = strtol(argv[1], &end_p, 10);
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start); // ai
-    long time_elapsed = 0;
+    char *end_p;
+    long duration = strtol(argv[1], &end_p, 10); // total seconds to monitor gpu
+    struct timespec start, end, request;
     int sampling_rate_ms = 10;
     long long values[1]; // number of events to monitor
+
+    request.tv_sec = 0;
+    request.tv_nsec = sampling_rate_ms * 1000000L;
+
+    clock_gettime(CLOCK_MONOTONIC, &start); // ai
+    long time_elapsed = 0;
+
     while (time_elapsed < duration) {
         clock_gettime(CLOCK_MONOTONIC, &end); //ai 
         time_elapsed = (end.tv_sec - start.tv_sec);
@@ -164,7 +168,7 @@ int main(int argc, char** argv) {
 
         fprintf(fp, "%ld                     %lld\n", time_elapsed, values[0]);
         fflush(fp);
-        usleep(sampling_rate_ms * 1000);
+        nanosleep(&request, NULL);
     }
     fclose(fp);
 
