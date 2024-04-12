@@ -49,5 +49,10 @@ You will need to re-export the PAPI path and libpfm library path everytime you r
 1. export PATH=/nfs/home/YOUR_ACCOUNT_NAME/papi/bin:$PATH
 
 2. export LD_LIBRARY_PATH=~/libpfm/lib:$LD_LIBRARY_PATH
+2a. export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
-3. Re-run the runtest shell script, and also re-run papi_component_avail as a slurm job using --gres=gpu to ensure papi works.
+3. export CPATH=/usr/local/cuda/include:$CPATH
+
+4. export PATH=/usr/local/cuda/bin:$PATH
+
+5. Re-run the runtest shell script, and also re-run papi_component_avail as a slurm job using --gres=gpu to ensure papi works.

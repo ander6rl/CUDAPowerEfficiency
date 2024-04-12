@@ -1,0 +1,8 @@
+| nvml:::NVIDIA_A2:device_0:power                                              |
+|            Power usage reading for the device, in miliwatts. This is the powe|
+| nvml:::NVIDIA_A2:device_0:power_management_limit                             |
+|            Power draw upper bound limit (in mW) for the device. Writable (wit|
+| nvml:::NVIDIA_A2:device_0:power_management_limit_constraint_min              |
+|            The minimum power management limit in milliwatts.                 |
+| nvml:::NVIDIA_A2:device_0:power_management_limit_constraint_max              |
+|            The maximum power management limit in milliwatts.                 |
