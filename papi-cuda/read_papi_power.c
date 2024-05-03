@@ -5,7 +5,6 @@
  */
 
 #define _POSIX_C_SOURCE 200809L 
-#define _POSIX_C_SOURCE 200809L 
 #include "papi.h"
 #include <nvml.h>
 #include <stdio.h>
@@ -101,9 +100,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    //cudaSetDevice(0);
-
-
     // AI generated
     // List all events for the NVML component
     int device_index = 0;
@@ -144,11 +140,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Failed to open file\n");
         exit(EXIT_FAILURE);
     }
-    //TODO: convert to cuda program or script to check block size as well
-    //TODO: run cuda benchmarks here (turn into cuda file?)
     fprintf(fp, "Timestamp (s) Power (W)\n");
 
-    //TODO: CALL THE MIXBENCH FUNCTION HERE TO RUN THE BENCHMARK
     char *end_p;
     long duration = strtol(argv[1], &end_p, 10); // total seconds to monitor gpu
     struct timespec start, end, request;
@@ -166,7 +159,7 @@ int main(int argc, char** argv) {
         time_elapsed = (end.tv_sec - start.tv_sec);
 
         // read event
-        //TODO: call mixbenchGPU(DATA_SIZE, VECTOR_SIZE);
+        // Call C-based benchmarks here
         retval = PAPI_read(EventSet, values);
         if (retval != PAPI_OK) {
             fclose(fp);
