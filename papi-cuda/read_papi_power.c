@@ -5,6 +5,7 @@
  */
 
 #define _POSIX_C_SOURCE 200809L 
+#define _POSIX_C_SOURCE 200809L 
 #include "papi.h"
 #include <nvml.h>
 #include <stdio.h>
@@ -29,6 +30,7 @@ int main(int argc, char** argv) {
     // This nvml structure is largely copied from here: https://github.com/erik/cudamon/blob/master/lib/nvml/example/example.c
     // Initialize nvml library
     nvmlReturn_t result;
+    unsigned int device_count;
     unsigned int device_count;
     result = nvmlInit();
     if (result != NVML_SUCCESS) {
@@ -63,6 +65,7 @@ int main(int argc, char** argv) {
     if (result != NVML_SUCCESS) {
         handle_error(result, "Failed to get pci info for device");
     }
+    printf("Device physically talking to: %d. %s [%s]\n", 0, name, pci.busId);
     printf("Device physically talking to: %d. %s [%s]\n", 0, name, pci.busId);
 
     // Now initialize the PAPI library
@@ -134,6 +137,7 @@ int main(int argc, char** argv) {
     retval = PAPI_start(EventSet);
 
     char log_file[256];
+    snprintf(log_file, sizeof(log_file), "gpu_sensor_papi_log.txt");
     snprintf(log_file, sizeof(log_file), "gpu_sensor_papi_log.txt");
     FILE *fp = fopen(log_file, "w");
     if (!fp) {

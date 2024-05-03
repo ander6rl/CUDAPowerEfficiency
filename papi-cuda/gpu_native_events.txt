@@ -1,8 +1,17 @@
-| nvml:::NVIDIA_A2:device_0:power                                              |
-|            Power usage reading for the device, in miliwatts. This is the powe|
-| nvml:::NVIDIA_A2:device_0:power_management_limit                             |
-|            Power draw upper bound limit (in mW) for the device. Writable (wit|
-| nvml:::NVIDIA_A2:device_0:power_management_limit_constraint_min              |
-|            The minimum power management limit in milliwatts.                 |
-| nvml:::NVIDIA_A2:device_0:power_management_limit_constraint_max              |
-|            The maximum power management limit in milliwatts.                 |
+CC=gcc
+CFLAGS=-Wall --std=c99
+LDFLAGS=-L/nfs/home/pollakad/papi/lib 
+LDLIBS=-lpapi -lnvidia-ml
+INCLUDES=-I/nfs/home/pollakad/papi/include 
+
+OBJS=read_papi_power.o
+EXE=read_papi_power
+
+$(EXE): $(OBJS)
+	$(CC) $(OBJS) -o $(EXE) $(LDFLAGS) $(LDLIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(EXE)
