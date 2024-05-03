@@ -46,10 +46,13 @@ If you do, try exporting your cuda path: export PATH=/usr/local/cuda/bin:$PATH ,
 
 You will need to re-export the PAPI path and libpfm library path everytime you re-launch the cluster prior to using papi again.
 
+Alternatively to doing the below, run export_and_build.sh.
+
 1. export PATH=/nfs/home/YOUR_ACCOUNT_NAME/papi/bin:$PATH
 
 2. export LD_LIBRARY_PATH=~/libpfm/lib:$LD_LIBRARY_PATH
 2a. export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+2b. export LD_LIBRARY_PATH=/nfs/home/pollakad/papi/lib:$LD_LIBRARY_PATH
 
 3. export CPATH=/usr/local/cuda/include:$CPATH
 
