@@ -1,6 +1,7 @@
 # CUDAPowerEfficiency
 
 This is a research project focusing on CUDA power efficiency using CUDA benchmarks.
+Final Deliverable: https://docs.google.com/document/d/1s5Z6nVbCJLhwmI7PHbOqbHTQi7VEIq4sypCGjU86-3o/edit?usp=sharing 
 
 ## Running the Powerreader
 
